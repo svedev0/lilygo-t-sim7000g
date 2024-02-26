@@ -54,7 +54,7 @@ void modem_SetNetworkMode() {
     res = modem.setNetworkMode(38);
     
     if (res != "1") {
-      DBG("setNetworkMode  false ");
+      Serial.println("(-) Failed to set network mode!");
       delay(AT_DELAY);
       continue;
     }
@@ -77,7 +77,7 @@ void modem_SetRadioMode() {
     res = modem.setPreferredMode(1);
 
     if (res != "1") {
-      DBG("setPreferredMode  false ");
+      Serial.println("(-) Failed to set preferred modem radio mode!");
       delay(AT_DELAY);
       continue;
     }
@@ -96,7 +96,7 @@ void modem_SetRfFuncMode() {
     modem.sendAT("+CFUN=1 ");
 
     if (modem.waitResponse(10000L) != 1) {
-      DBG(" +CFUN=1  false ");
+      Serial.println("(-) Failed to set RF circuit functionality mode!");
       delay(AT_DELAY);
       continue;
     }
@@ -232,5 +232,46 @@ void modem_ReadNetworkInfo() {
 
     String connectionStatus = getValue(result, ',', 1);
     Serial.println("(i) Connection status: " + connectionStatus);
+  }
+}
+
+/*
+  Power on and enable GPS
+*/
+void modem_EnableGPS() {
+  modem.sendAT("+CGPIO=0,48,1,1");
+  if (modem.waitResponse(10000L) != 1) {
+    Serial.println("(-) Failed to enable GPS!");
+  }
+
+  modem.enableGPS();
+  Serial.println("(i) GPS is enabled");
+}
+
+/*
+  Power off and disable GPS
+*/
+void modem_DisableGPS() {
+  modem.sendAT("+CGPIO=0,48,1,0");
+  if (modem.waitResponse(10000L) != 1) {
+    Serial.println("(-) Failed to disable GPS!");
+  }
+
+  modem.disableGPS();
+  Serial.println("(i) GPS is disabled");
+}
+
+/*
+  Get GPS position
+*/
+void modem_GetGPSPosition() {
+  float lat,  lon;
+  if (modem.getGPS(&lat, &lon)) {
+    Serial.println("GPS location:");
+    Serial.println("Latitude: " + String(lat));
+    Serial.println("Longitude: " + String(lon));
+  }
+  else {
+    Serial.println("(-) Failed to get GPS location!");
   }
 }
