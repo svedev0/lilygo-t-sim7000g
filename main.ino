@@ -40,15 +40,17 @@ void setup() {
   modem_SetRadioMode();
   modem_SetRfFuncMode();
   modem_SetPdpParams();
+  modem_EnableGPS();
 
   // Verify modem configuration
   modem_ValidateNetwork();
   modem_ReadNetworkInfo();
+  modem_GetGPSPosition();
 }
 
 void loop() {
   modem.maintain();
-  WiFiClient client = server.available();
+  WiFiClient client = server.accept();
   runHttpServer(client);
 }
 
